@@ -35,7 +35,8 @@ class CC1mu1pi : public SelectionBase {
     int muon_candidate_idx_;
 
     MyPointer< TVector3 > reco_p3mu_;
-
     MyPointer< TVector3 > mc_p3mu_;
+    MyPointer< TVector3 > reco_p3pi_;
+    MyPointer< TVector3 > mc_p3pi_;
 
 };
