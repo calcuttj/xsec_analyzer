@@ -39,9 +39,6 @@ struct Arguments {
   int nevents = -1;
 };
 
-void load_aux_file(const Arguments & arguments, TChain & aux_chain) {
-}
-
 void analyze( const Arguments & arguments )
 {
   std::cout << "\nRunning ProcessNTuples with options:\n";
