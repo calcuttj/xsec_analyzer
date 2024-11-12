@@ -50,6 +50,10 @@ void analyze( const Arguments & arguments )
   for (const auto & name : arguments.input_files) {
     std::cout << "\t\t- " << name << '\n';
   }
+  std::cout << "\taux_file_names:\n";
+  for (const auto & name : arguments.aux_files) {
+    std::cout << "\t\t- " << name << '\n';
+  }
   std::cout << "\n\nselection names:\n";
   for ( const auto& sel_name : arguments.selection_names ) {
     std::cout << "\t\t- " << sel_name << '\n';
