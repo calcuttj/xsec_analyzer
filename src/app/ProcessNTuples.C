@@ -34,9 +34,13 @@
 struct Arguments {
   std::vector<std::string> input_files;
   std::string output_file;
+  std::vector<std::string> aux_files;
   std::vector<std::string> selection_names;
   int nevents = -1;
 };
+
+void load_aux_file(const Arguments & arguments, TChain & aux_chain) {
+}
 
 void analyze( const Arguments & arguments )
 {
@@ -59,6 +63,22 @@ void analyze( const Arguments & arguments )
   for ( const auto& f_name : arguments.input_files ) {
     events_ch.Add( f_name.c_str() );
     subruns_ch.Add( f_name.c_str() );
+  }
+
+  // If any auxiliary files were given to the arguments, add them here.
+  // and turn on the flag to activate new branches
+  bool use_bdt_branches = false;
+  TChain aux_ch("BDTScores"); //Hardcoding this now
+  if (arguments.aux_files.size()) {
+    use_bdt_branches = true;
+
+    //Append to chain
+    for (const auto & aux_name : arguments.aux_files) {
+      aux_ch.Add(aux_name.c_str());
+    }
+
+    //Add as a freind to the events chain
+    events_ch.AddFriend(&aux_ch);
   }
 
   // OUTPUT TTREE
@@ -151,6 +171,14 @@ void analyze( const Arguments & arguments )
       sel->apply_selection( &cur_event );
     }
 
+    /*std::cout << "BDT responses " <<
+                 cur_event.pfp_proton_bdt_responses_->size() <<
+                 std::endl;
+    for (auto & v: (*cur_event.pfp_proton_bdt_responses_)) {
+      std::cout << "\t" << v << std::endl;
+    }*/
+    
+
     // We're done. Save the results and move on to the next event.
     out_tree->Fill();
     ++events_entry;
@@ -190,6 +218,9 @@ bool parse_args( int argc, char* argv[], Arguments & arg_results ) {
         arg_results.selection_names.push_back( sel_name );
       }
     }
+    if (!strcasecmp(argv[iArg],"--aux")) {
+      arg_results.aux_files.push_back(argv[++iArg]);
+    }
     if (!strcasecmp(argv[iArg],"-n")) {
       arg_results.nevents = std::atoi(argv[++iArg]);
       if (arg_results.nevents < -1) {
@@ -203,6 +234,7 @@ bool parse_args( int argc, char* argv[], Arguments & arg_results ) {
           "-i <input_pelee_file> -o <output_file> " <<
           "-s <comma-separated selection names list> " <<
           "-n <nevents: default -1 for all> " <<
+          "[--aux <auxiliary file>] " <<
           std::endl;
       return false;
     }
