@@ -205,21 +205,21 @@ bool CC1mu1pi::Selection(AnalysisEvent* Event) {
     float start_dist = Event->track_start_distance_->at( p );
     float track_length = Event->track_length_->at( p );
     float proton_bdt_score = Event->track_llr_pid_score_->at( p );
-    float proton_chi2 = Event->track_chi2_proton_->at(p);
-    float muon_chi2 = Event->track_chi2_muon_->at(p);
+    //float proton_chi2 = Event->track_chi2_proton_->at(p);
+    //float muon_chi2 = Event->track_chi2_muon_->at(p);
 
     //From values from Phil's docdb 41264
     if ((track_score > MUON_TRACK_SCORE_CUT) && // > .85
         (start_dist < MUON_VTX_DISTANCE_CUT) && // < 4cm
-        (track_length > MUON_LENGTH_CUT) && // > 20cm
-        (proton_chi2 > proton_chi2_cutval_) && // > 60
-        (muon_chi2 < muon_chi2_cutval_) && // < 30
-        (proton_chi2/muon_chi2 > promu_chi2_ratio_cutval_) // > 7
+        (track_length > MUON_LENGTH_CUT) //&& // > 20cm
+        //(proton_chi2 > proton_chi2_cutval_) && // > 60
+        //(muon_chi2 < muon_chi2_cutval_) && // < 30
+        //(proton_chi2/muon_chi2 > promu_chi2_ratio_cutval_) // > 7
     ) { // TODO -- Check this
       muon_candidate_indices.push_back( p );
-      muon_pid_scores.push_back( pid_score );
+      //muon_pid_scores.push_back( pid_score );
 
-      if (pid_score > )
+      ///if (pid_score > )
 
       // Check whether the muon candidate is contained. Use the PCV as the
       // containment volume.
@@ -228,12 +228,12 @@ bool CC1mu1pi::Selection(AnalysisEvent* Event) {
       float endy = Event->track_endy_->at( muon_candidate_idx_ );
       float endz = Event->track_endz_->at( muon_candidate_idx_ );
       bool end_contained = point_inside_FV( PCV, endx, endy, endz );
-      if (end_contained) {
+      /*if (end_contained) {
         contained_muon_candidates.push_back(p);
       }
       else {
         escaping_muon_candidates.push_back(p);
-      }
+      }*/
 
       //muon_proton_chi2s.push_back(proton_chi2);
       //muon_muon_chi2s.push_back(muon_chi2);
