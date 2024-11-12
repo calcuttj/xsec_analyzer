@@ -8,14 +8,15 @@ class CC1mu1pi : public SelectionBase {
   CC1mu1pi();
   ~CC1mu1pi(){};
 
-  int CategorizeEvent(AnalysisEvent* Event);
-  bool Selection(AnalysisEvent* Event);
-  bool DefineSignal(AnalysisEvent* Event);
-  void ComputeRecoObservables(AnalysisEvent* Event);
-  void ComputeTrueObservables(AnalysisEvent* Event);
-  void DefineOutputBranches();
-  void DefineConstants();
-  void DefineCategoryMap();
+  int categorize_event(AnalysisEvent* Event);
+  bool selection(AnalysisEvent* Event);
+  bool define_signal(AnalysisEvent* Event);
+  void compute_reco_observables(AnalysisEvent* Event);
+  void compute_true_observables(AnalysisEvent* Event);
+  void define_output_branches();
+  void define_constants();
+  void define_category_map();
+  void reset(){};
 
  private:
 

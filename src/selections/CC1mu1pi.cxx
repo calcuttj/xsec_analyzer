@@ -3,36 +3,36 @@
 
 CC1mu1pi::CC1mu1pi() : SelectionBase("CC1mu1pi") {}
 
-void CC1mu1pi::DefineCategoryMap() {
+void CC1mu1pi::define_category_map() {
   categ_map_ = CC1mu1pi_MAP;
 };
 
-void CC1mu1pi::DefineOutputBranches() {
+void CC1mu1pi::define_output_branches() {
   // Save any additional variables to the output TTree
-  this->SetBranch( &sig_isNuMu_, "mc_is_numu", kBool );
-  this->SetBranch( &sig_inFV_, "mc_vertex_in_FV", kBool );
-  this->SetBranch( &sig_nPion_, "mc_npion", kInteger );
-  this->SetBranch( &sig_has_fs_muon_, "mc_has_fs_muon", kBool );
-  this->SetBranch( &sig_is_signal_, "mc_is_signal", kBool );
-  this->SetBranch( &sel_reco_vertex_in_FV_, "sel_reco_vertex_in_FV", kBool);
-  this->SetBranch( &sel_pfp_starts_in_PCV_, "sel_pfp_starts_in_PCV", kBool);
-  this->SetBranch( &sel_has_muon_candidate_, "sel_has_muon_candidate", kBool);
-  this->SetBranch( &sel_topo_cut_passed_, "sel_topo_cut_passed", kBool);
-  this->SetBranch( &sel_nu_mu_cc_, "sel_nu_mu_cc", kBool);
-  this->SetBranch( &sel_muon_contained_, "sel_muon_contained", kBool);
-  this->SetBranch( &muon_candidate_idx_, "muon_candidate_idx", kInteger);
-  this->SetBranch( &pion_candidate_idx_, "pion_candidate_idx", kInteger);
-  this->SetBranch( reco_p3mu_, "reco_p3_mu", kTVector );
-  this->SetBranch( reco_p3pi_, "reco_p3_pi", kTVector );
-  this->SetBranch( mc_p3mu_, "true_p3_mu", kTVector );
-  this->SetBranch( mc_p3pi_, "true_p3_pi", kTVector );
+  this->set_branch( &sig_isNuMu_, "mc_is_numu");
+  this->set_branch( &sig_inFV_, "mc_vertex_in_FV");
+  this->set_branch( &sig_nPion_, "mc_npion");
+  this->set_branch( &sig_has_fs_muon_, "mc_has_fs_muon");
+  this->set_branch( &sig_is_signal_, "mc_is_signal");
+  this->set_branch( &sel_reco_vertex_in_FV_, "sel_reco_vertex_in_FV");
+  this->set_branch( &sel_pfp_starts_in_PCV_, "sel_pfp_starts_in_PCV");
+  this->set_branch( &sel_has_muon_candidate_, "sel_has_muon_candidate");
+  this->set_branch( &sel_topo_cut_passed_, "sel_topo_cut_passed");
+  this->set_branch( &sel_nu_mu_cc_, "sel_nu_mu_cc");
+  this->set_branch( &sel_muon_contained_, "sel_muon_contained");
+  this->set_branch( &muon_candidate_idx_, "muon_candidate_idx");
+  this->set_branch( &pion_candidate_idx_, "pion_candidate_idx");
+  this->set_branch( reco_p3mu_, "reco_p3_mu");
+  this->set_branch( reco_p3pi_, "reco_p3_pi");
+  this->set_branch( mc_p3mu_, "true_p3_mu");
+  this->set_branch( mc_p3pi_, "true_p3_pi");
 };
 
-void CC1mu1pi::ComputeRecoObservables(AnalysisEvent* Event) {
+void CC1mu1pi::compute_reco_observables(AnalysisEvent* Event) {
 
 };
 
-void CC1mu1pi::ComputeTrueObservables(AnalysisEvent* Event) {
+void CC1mu1pi::compute_true_observables(AnalysisEvent* Event) {
   // Evaluate the true kinematic variables of interest
 
   // Check if there is a true final-state muon in this event
@@ -97,7 +97,7 @@ void CC1mu1pi::ComputeTrueObservables(AnalysisEvent* Event) {
   }
 };
 
-int  CC1mu1pi::CategorizeEvent(AnalysisEvent* Event) {
+int  CC1mu1pi::categorize_event(AnalysisEvent* Event) {
   // Identify the event category of the selected event
 
   // Real data has a bogus true neutrino PDG code that is not one of the
@@ -111,7 +111,7 @@ int  CC1mu1pi::CategorizeEvent(AnalysisEvent* Event) {
 
   // All events outside of the true fiducial volume should be categorized
   // as "out of fiducial volume"
-  bool mcVertexInFV = point_inside_FV(this->ReturnTrueFV(),
+  bool mcVertexInFV = point_inside_FV(this->true_FV(),
     Event->mc_nu_vx_, Event->mc_nu_vy_, Event->mc_nu_vz_);
   if (!mcVertexInFV) {
     return kOOFV;
@@ -127,7 +127,7 @@ int  CC1mu1pi::CategorizeEvent(AnalysisEvent* Event) {
     return kOther;
   }
 
-  if (this->IsEventMCSignal()) {
+  if (this->is_event_mc_signal()) {
     // Categorize all numuCC events as "CC other" since we don't look at the
     // hadronic content in this selection
     // TODO: revisit this!
@@ -137,7 +137,7 @@ int  CC1mu1pi::CategorizeEvent(AnalysisEvent* Event) {
   // We shouldn't ever get here, but return "unknown" just in case
   return kUnknown;
 };
-bool CC1mu1pi::Selection(AnalysisEvent* Event) {
+bool CC1mu1pi::selection(AnalysisEvent* Event) {
 
 
 
@@ -183,7 +183,7 @@ bool CC1mu1pi::Selection(AnalysisEvent* Event) {
 
   // Require selected events to have a reco vertex within the reco fiducial
   // volume
-  sel_reco_vertex_in_FV_ = point_inside_FV( this->ReturnRecoFV(),
+  sel_reco_vertex_in_FV_ = point_inside_FV( this->reco_FV(),
     Event->nu_vx_, Event->nu_vy_, Event->nu_vz_ );
 
   // Require the event to have a topological score that passes the cut
@@ -282,7 +282,7 @@ bool CC1mu1pi::Selection(AnalysisEvent* Event) {
   return sel_nu_mu_cc_;
 };
 
-void CC1mu1pi::DefineConstants() {
+void CC1mu1pi::define_constants() {
   // Define reco & true fiducial volumes, alongside any other constants used
   // within selection cuts
 
@@ -290,18 +290,18 @@ void CC1mu1pi::DefineConstants() {
   // (see docdb 41264) expanding upon Andy Smith's work
   // (docdb 33809)
   // x_min, x_max, y_min, y_max, z_min, z_max
-  this->DefineTrueFV(10., 246.35, -106.5, 106.5, 10, 986.8);
-  this->DefineRecoFV(10., 246.35, -106.5, 106.5, 10, 986.8);
+  this->define_true_FV(10., 246.35, -106.5, 106.5, 10, 986.8);
+  this->define_reco_FV(10., 246.35, -106.5, 106.5, 10, 986.8);
 }
 
-bool CC1mu1pi::DefineSignal(AnalysisEvent* Event) {
+bool CC1mu1pi::define_signal(AnalysisEvent* Event) {
   // Determine whether or not the input event matches the signal definition
   // for this selection. This determination should be done only with MC truth
   // information.
 
   // Require signal events to be inside the true fiducial volume
   sig_inFV_ = point_inside_FV(
-      this->ReturnTrueFV(),
+      this->true_FV(),
       Event->mc_nu_vx_,
       Event->mc_nu_vy_,
       Event->mc_nu_vz_);
