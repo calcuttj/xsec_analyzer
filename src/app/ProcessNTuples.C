@@ -33,7 +33,7 @@
 
 void analyze( const std::vector< std::string >& in_file_names,
   const std::vector< std::string >& selection_names,
-  const std::string& output_filename )
+  const std::string& output_filename, int nevents)
 {
   std::cout << "\nRunning ProcessNTuples with options:\n";
   std::cout << "\toutput_filename: " << output_filename << '\n';
@@ -102,7 +102,7 @@ void analyze( const std::vector< std::string >& in_file_names,
 
   while ( true ) {
 
-    //if ( events_entry > 1000) break;
+    if ( (nevents > 0) && events_entry > nevents) break;
 
     if ( events_entry % 1000 == 0 ) {
       std::cout << "Processing event #" << events_entry << '\n';
@@ -165,15 +165,16 @@ void analyze( const std::vector< std::string >& in_file_names,
 
 void analyzer( const std::string& in_file_name,
  const std::vector< std::string > selection_names,
- const std::string& output_filename)
+ const std::string& output_filename,
+ int nevents)
 {
   std::vector< std::string > in_files = { in_file_name };
-  analyze( in_files, selection_names, output_filename );
+  analyze( in_files, selection_names, output_filename, nevents);
 }
 
 int main( int argc, char* argv[] ) {
 
-  if ( argc != 4 ) {
+  if ( argc < 4 ) {
     std::cout << "Usage: " << argv[0]
       << " INPUT_PELEE_NTUPLE_FILE SELECTION_NAMES OUTPUT_FILE\n";
     return 1;
@@ -190,7 +191,9 @@ int main( int argc, char* argv[] ) {
     selection_names.push_back( sel_name );
   }
 
-  analyzer( input_file_name, selection_names, output_file_name );
+  int nevents = (argc > 4 ? std::atoi(argv[4]) : -1);
+
+  analyzer( input_file_name, selection_names, output_file_name, nevents );
 
   return 0;
 }
