@@ -198,6 +198,20 @@ void set_event_branch_addresses(TTree& etree, AnalysisEvent& ev)
 
 }
 
+void set_additional_branch_addresses(TTree& etree, AnalysisEvent& ev) {
+
+  //Adding in new bdt responses if they're there
+  if ( etree.GetBranch("protonBDTResponses") != nullptr ) {
+    set_object_input_branch_address(
+        etree, "protonBDTResponses", ev.pfp_proton_bdt_responses_);
+  }
+  if ( etree.GetBranch("muonBDTResponses") != nullptr ) {
+    set_object_input_branch_address(
+        etree, "muonBDTResponses", ev.pfp_muon_bdt_responses_);
+  }
+
+}
+
 // Helper function to set branch addresses for the output TTree
 void set_event_output_branch_addresses(TTree& out_tree, AnalysisEvent& ev,
   bool create = false)

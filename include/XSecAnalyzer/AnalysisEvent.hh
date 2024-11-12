@@ -155,6 +155,11 @@ public:
   // Signal definition requirements
   bool is_mc_ = false;
 
+
+  // BDT Scores
+  MyPointer< std::vector<float> > pfp_proton_bdt_responses_;
+  MyPointer< std::vector<float> > pfp_muon_bdt_responses_;
+
   //================================================================================================================
   // ** Reconstructed observables **
 };

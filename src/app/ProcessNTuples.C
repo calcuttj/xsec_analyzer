@@ -31,18 +31,28 @@
 #include "XSecAnalyzer/Selections/SelectionBase.hh"
 #include "XSecAnalyzer/Selections/SelectionFactory.hh"
 
-void analyze( const std::vector< std::string >& in_file_names,
-  const std::vector< std::string >& selection_names,
-  const std::string& output_filename, int nevents)
+struct Arguments {
+  std::vector<std::string> input_files;
+  std::string output_file;
+  std::vector<std::string> aux_files;
+  std::vector<std::string> selection_names;
+  int nevents = -1;
+};
+
+void analyze( const Arguments & arguments )
 {
   std::cout << "\nRunning ProcessNTuples with options:\n";
-  std::cout << "\toutput_filename: " << output_filename << '\n';
+  std::cout << "\toutput_filename: " << arguments.output_file << '\n';
   std::cout << "\tinput_file_names:\n";
-  for ( size_t i = 0u; i < in_file_names.size(); ++i ) {
-    std::cout << "\t\t- " << in_file_names[i] << '\n';
+  for (const auto & name : arguments.input_files) {
+    std::cout << "\t\t- " << name << '\n';
+  }
+  std::cout << "\taux_file_names:\n";
+  for (const auto & name : arguments.aux_files) {
+    std::cout << "\t\t- " << name << '\n';
   }
   std::cout << "\n\nselection names:\n";
-  for ( const auto& sel_name : selection_names ) {
+  for ( const auto& sel_name : arguments.selection_names ) {
     std::cout << "\t\t- " << sel_name << '\n';
   }
 
@@ -51,14 +61,30 @@ void analyze( const std::vector< std::string >& in_file_names,
   TChain events_ch( "nuselection/NeutrinoSelectionFilter" );
   TChain subruns_ch( "nuselection/SubRun" );
 
-  for ( const auto& f_name : in_file_names ) {
+  for ( const auto& f_name : arguments.input_files ) {
     events_ch.Add( f_name.c_str() );
     subruns_ch.Add( f_name.c_str() );
   }
 
+  // If any auxiliary files were given to the arguments, add them here.
+  // and turn on the flag to activate new branches
+  bool use_bdt_branches = false;
+  TChain aux_ch("BDTScores"); //Hardcoding this now
+  if (arguments.aux_files.size()) {
+    use_bdt_branches = true;
+
+    //Append to chain
+    for (const auto & aux_name : arguments.aux_files) {
+      aux_ch.Add(aux_name.c_str());
+    }
+
+    //Add as a freind to the events chain
+    events_ch.AddFriend(&aux_ch);
+  }
+
   // OUTPUT TTREE
   // Make an output TTree for plotting (one entry per event)
-  TFile* out_file = new TFile( output_filename.c_str(), "recreate" );
+  TFile* out_file = new TFile( arguments.output_file.c_str(), "recreate" );
   out_file->cd();
   TTree* out_tree = new TTree( "stv_tree", "STV analysis tree" );
 
@@ -84,13 +110,13 @@ void analyze( const std::vector< std::string >& in_file_names,
   std::vector< std::unique_ptr<SelectionBase> > selections;
 
   SelectionFactory sf;
-  for ( const auto& sel_name : selection_names ) {
+  for ( const auto& sel_name : arguments.selection_names ) {
     selections.emplace_back().reset( sf.CreateSelection(sel_name) );
   }
 
   out_file->cd();
   for ( auto& sel : selections ) {
-    sel->Setup( out_tree );
+    sel->setup( out_tree );
   }
 
   // EVENT LOOP
@@ -102,7 +128,9 @@ void analyze( const std::vector< std::string >& in_file_names,
 
   while ( true ) {
 
-    if ( (nevents > 0) && events_entry > nevents) break;
+    //If not doing all events (-1), break after nevents
+    if ( (arguments.nevents != -1) && (events_entry > arguments.nevents) )
+      break;
 
     if ( events_entry % 1000 == 0 ) {
       std::cout << "Processing event #" << events_entry << '\n';
@@ -115,6 +143,9 @@ void analyze( const std::vector< std::string >& in_file_names,
     // Set branch addresses for the member variables that will be read
     // directly from the Event TTree.
     set_event_branch_addresses( events_ch, cur_event );
+
+    // Set branch addresses for auxiliary members
+    set_additional_branch_addresses( events_ch, cur_event );
 
     // TChain::LoadTree() returns the entry number that should be used with
     // the current TTree object, which (together with the TBranch objects
@@ -141,8 +172,16 @@ void analyze( const std::vector< std::string >& in_file_names,
     set_event_output_branch_addresses(*out_tree, cur_event, create_them );
 
     for ( auto& sel : selections ) {
-      sel->ApplySelection( &cur_event );
+      sel->apply_selection( &cur_event );
     }
+
+    /*std::cout << "BDT responses " <<
+                 cur_event.pfp_proton_bdt_responses_->size() <<
+                 std::endl;
+    for (auto & v: (*cur_event.pfp_proton_bdt_responses_)) {
+      std::cout << "\t" << v << std::endl;
+    }*/
+    
 
     // We're done. Save the results and move on to the next event.
     out_tree->Fill();
@@ -150,12 +189,12 @@ void analyze( const std::vector< std::string >& in_file_names,
   }
 
   for ( auto& sel : selections ) {
-    sel->Summary();
+    sel->summary();
   }
-  std::cout << "Wrote output to:" << output_filename << std::endl;
+  std::cout << "Wrote output to:" << arguments.output_file << std::endl;
 
   for ( auto& sel : selections ) {
-    sel->FinalTasks();
+    sel->final_tasks();
   }
 
   out_tree->Write();
@@ -163,37 +202,58 @@ void analyze( const std::vector< std::string >& in_file_names,
   delete out_file;
 }
 
-void analyzer( const std::string& in_file_name,
- const std::vector< std::string > selection_names,
- const std::string& output_filename,
- int nevents)
+void analyzer( const Arguments & arguments )
 {
-  std::vector< std::string > in_files = { in_file_name };
-  analyze( in_files, selection_names, output_filename, nevents);
+  analyze( arguments );
+}
+
+bool parse_args( int argc, char* argv[], Arguments & arg_results ) {
+  for (int iArg = 1; iArg < argc; iArg++) {
+    if (!strcasecmp(argv[iArg],"-o")) {
+      arg_results.output_file = argv[++iArg];
+    }
+    if (!strcasecmp(argv[iArg],"-i")) {
+      arg_results.input_files.push_back(argv[++iArg]);
+    }
+    if (!strcasecmp(argv[iArg],"-s")) {
+      std::stringstream sel_ss(argv[++iArg]);
+      std::string sel_name;
+      while ( std::getline(sel_ss, sel_name, ',') ) {
+        arg_results.selection_names.push_back( sel_name );
+      }
+    }
+    if (!strcasecmp(argv[iArg],"--aux")) {
+      arg_results.aux_files.push_back(argv[++iArg]);
+    }
+    if (!strcasecmp(argv[iArg],"-n")) {
+      arg_results.nevents = std::atoi(argv[++iArg]);
+      if (arg_results.nevents < -1) {
+        std::cerr << "Error: Must provide -1 for all events or positive number" <<
+                     std::endl;
+        return false;
+      }
+    }
+    if (!strcasecmp(argv[iArg],"-h")) {
+      std::cout << argv[0] <<
+          "-i <input_pelee_file> -o <output_file> " <<
+          "-s <comma-separated selection names list> " <<
+          "-n <nevents: default -1 for all> " <<
+          "[--aux <auxiliary file>] " <<
+          std::endl;
+      return false;
+    }
+  }
+  return true;
 }
 
 int main( int argc, char* argv[] ) {
 
-  if ( argc < 4 ) {
-    std::cout << "Usage: " << argv[0]
-      << " INPUT_PELEE_NTUPLE_FILE SELECTION_NAMES OUTPUT_FILE\n";
+  Arguments arguments;
+  if (!parse_args(argc, argv, arguments)) {
     return 1;
   }
 
-  std::string input_file_name( argv[1] );
-  std::string output_file_name( argv[3] );
-
-  std::vector< std::string > selection_names;
-
-  std::stringstream sel_ss( argv[2] );
-  std::string sel_name;
-  while ( std::getline(sel_ss, sel_name, ',') ) {
-    selection_names.push_back( sel_name );
-  }
-
-  int nevents = (argc > 4 ? std::atoi(argv[4]) : -1);
-
-  analyzer( input_file_name, selection_names, output_file_name, nevents );
+  analyzer( arguments );
 
   return 0;
 }
