@@ -196,6 +196,9 @@ void set_event_branch_addresses(TTree& etree, AnalysisEvent& ev)
 
   }
 
+}
+
+void set_additional_branch_addresses(TTree& etree, AnalysisEvent& ev) {
 
   //Adding in new bdt responses if they're there
   if ( etree.GetBranch("protonBDTResponses") != nullptr ) {

@@ -144,6 +144,9 @@ void analyze( const Arguments & arguments )
     // directly from the Event TTree.
     set_event_branch_addresses( events_ch, cur_event );
 
+    // Set branch addresses for auxiliary members
+    set_additional_branch_addresses( events_ch, cur_event );
+
     // TChain::LoadTree() returns the entry number that should be used with
     // the current TTree object, which (together with the TBranch objects
     // that it owns) doesn't know about the other TTrees in the TChain.
