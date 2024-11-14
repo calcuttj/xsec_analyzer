@@ -98,6 +98,7 @@ public:
   MyPointer< std::vector<float> > track_range_mom_mu_;
   MyPointer< std::vector<float> > track_mcs_mom_mu_;
   MyPointer< std::vector<float> > track_chi2_proton_;
+  MyPointer< std::vector<float> > track_chi2_muon_;
 
   // Log-likelihood ratio particle ID information
 
@@ -159,6 +160,7 @@ public:
   // BDT Scores
   MyPointer< std::vector<float> > pfp_proton_bdt_responses_;
   MyPointer< std::vector<float> > pfp_muon_bdt_responses_;
+  MyPointer< std::vector<float> > pfp_pion_bdt_responses_;
 
   //================================================================================================================
   // ** Reconstructed observables **

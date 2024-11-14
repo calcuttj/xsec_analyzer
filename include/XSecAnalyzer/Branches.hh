@@ -129,6 +129,15 @@ void set_event_branch_addresses(TTree& etree, AnalysisEvent& ev)
     ev.track_chi2_proton_.reset( nullptr );
   }
 
+  //bool has_chipr = ( etree.GetBranch("trk_pid_chipr_v") != nullptr );
+  if ( etree.GetBranch("trk_pid_chimu_v") != nullptr ) {
+    set_object_input_branch_address( etree, "trk_pid_chimu_v",
+      ev.track_chi2_muon_ );
+  }
+  else {
+    ev.track_chi2_muon_.reset( nullptr );
+  }
+
   // Log-likelihood-based particle ID information
   set_object_input_branch_address( etree, "trk_llr_pid_v", ev.track_llr_pid_ );
 
@@ -412,6 +421,10 @@ void set_event_output_branch_addresses(TTree& out_tree, AnalysisEvent& ev,
   if ( ev.track_chi2_proton_ ) {
     set_object_output_branch_address< std::vector<float> >( out_tree,
       "trk_pid_chipr_v", ev.track_chi2_proton_, create );
+  }
+  if ( ev.track_chi2_muon_ ) {
+    set_object_output_branch_address< std::vector<float> >( out_tree,
+      "trk_pid_chimu_v", ev.track_chi2_muon_, create );
   }
 
   // Log-likelihood-based particle ID information
