@@ -10,43 +10,100 @@ void CC1mu1pi::define_category_map() {
 void CC1mu1pi::define_output_branches() {
   // Save any additional variables to the output TTree
   this->set_branch( &sig_isNuMu_, "mc_is_numu");
+  this->set_branch( &sig_is_CC_, "mc_is_cc");
   this->set_branch( &sig_inFV_, "mc_vertex_in_FV");
   this->set_branch( &sig_nPion_, "mc_npion");
   this->set_branch( &sig_has_fs_muon_, "mc_has_fs_muon");
   this->set_branch( &sig_is_signal_, "mc_is_signal");
+
   this->set_branch( &sel_reco_vertex_in_FV_, "sel_reco_vertex_in_FV");
   this->set_branch( &sel_pfp_starts_in_PCV_, "sel_pfp_starts_in_PCV");
   this->set_branch( &sel_has_muon_candidate_, "sel_has_muon_candidate");
   this->set_branch( &sel_presel_topo_cut_passed_, "sel_presel_topo_cut_passed");
   this->set_branch( &sel_cc1pi_topo_cut_passed_, "sel_cc1pi_topo_cut_passed");
-  this->set_branch( &sel_good_opening_angle_, "sel_good_opening_angle");
+  this->set_branch( &sel_phase_space_opening_angle_, "sel_phase_space_opening_angle");
+  this->set_branch( &sel_phase_space_pion_mom_, "sel_phase_space_pion_mom");
+  this->set_branch( &sel_phase_space_muon_mom_, "sel_phase_space_muon_mom");
+  this->set_branch( &sel_good_bdt_scores_, "sel_good_bdt_scores");
+  this->set_branch( &sel_reselected_muon_, "sel_reselected_muon_");
+
   this->set_branch( &sel_opening_angle_, "sel_opening_angle");
   this->set_branch( &sel_nu_mu_cc_, "sel_nu_mu_cc");
   this->set_branch( &sel_nu_mu_cc_1pi_, "sel_nu_mu_cc_1pi");
   this->set_branch( &sel_muon_contained_, "sel_muon_contained");
+  this->set_branch( &sel_all_near_vertex_, "sel_all_near_vertex");
+  this->set_branch( &max_vertex_distance_, "max_vertex_distance");
+  this->set_branch( &sel_pion_dEdx_, "sel_pion_dEdx");
+  this->set_branch( &sel_pion_dEdx_good_, "sel_pion_dEdx_good");
+  this->set_branch( &sel_min_2_tracks_, "sel_min_2_tracks");
+  this->set_branch( &sel_num_non_protons_good_, "sel_num_non_protons_good");
+  this->set_branch( &sel_max_1_escape_, "sel_max_1_escape");
+  this->set_branch( &sel_n_escape_, "sel_n_escape");
+  this->set_branch( &sel_pion_not_in_gap_, "sel_pion_not_in_gap");
+  this->set_branch( &sel_muon_not_in_gap_, "sel_muon_not_in_gap");
+
   this->set_branch( &muon_candidate_idx_, "muon_candidate_idx");
   this->set_branch( &pion_candidate_idx_, "pion_candidate_idx");
-  this->set_branch( reco_p3mu_, "reco_p3_mu");
-  this->set_branch( reco_p3pi_, "reco_p3_pi");
-  this->set_branch( mc_p3mu_, "true_p3_mu");
-  this->set_branch( mc_p3pi_, "true_p3_pi");
+
+  //this->set_branch( reco_p3mu_, "reco_p3mu");
+  //this->set_branch( reco_p3pi_, "reco_p3pi");
+  this->set_branch( &reco_pi_mcs_mom_, "reco_pi_mcs_mom_");
+  this->set_branch( &reco_pi_range_mom_, "reco_pi_range_mom_");
+  this->set_branch( &reco_mu_mcs_mom_, "reco_mu_mcs_mom_");
+  this->set_branch( &reco_mu_range_mom_, "reco_mu_range_mom_");
+
+  this->set_branch( &reco_pi_dirx_ , "reco_pi_dirx");
+  this->set_branch( &reco_pi_diry_ , "reco_pi_diry");
+  this->set_branch( &reco_pi_dirz_ , "reco_pi_dirz");
+
+
+
+
+  this->set_branch( &reco_mu_dirx_ , "reco_mu_dirx");
+  this->set_branch( &reco_mu_diry_ , "reco_mu_diry");
+  this->set_branch( &reco_mu_dirz_ , "reco_mu_dirz");
+
+  this->set_branch( &true_pi_dirx_ , "true_pi_dirx");
+  this->set_branch( &true_pi_diry_ , "true_pi_diry");
+  this->set_branch( &true_pi_dirz_ , "true_pi_dirz");
+  this->set_branch( &true_mu_dirx_ , "true_mu_dirx");
+  this->set_branch( &true_mu_diry_ , "true_mu_diry");
+  this->set_branch( &true_mu_dirz_ , "true_mu_dirz");
+  this->set_branch( &true_mu_mom_ , "true_mu_mom");
+  this->set_branch( &true_pi_mom_ , "true_pi_mom");
+
+  this->set_branch( &true_n_proton_, "true_n_proton");
+  this->set_branch( &true_n_proton_above_thresh_, "true_n_proton_above_thresh");
+
+  //this->set_branch( &mc_p3mu_, "true_p3mu");
+  //this->set_branch( &mc_p3pi_, "true_p3pi");
+
 };
 
 void CC1mu1pi::compute_reco_observables(AnalysisEvent* Event) {
+  if (pion_candidate_idx_ != BOGUS_INDEX) {
+    reco_pi_dirx_ = Event->track_dirx_->at(pion_candidate_idx_);
+    reco_pi_diry_ = Event->track_diry_->at(pion_candidate_idx_);
+    reco_pi_dirz_ = Event->track_dirz_->at(pion_candidate_idx_);
 
+    reco_pi_mcs_mom_ = Event->track_mcs_mom_mu_->at(pion_candidate_idx_);
+    reco_pi_range_mom_ = Event->track_range_mom_mu_->at(pion_candidate_idx_);
+  }
+
+  if (muon_candidate_idx_ != BOGUS_INDEX) {
+    reco_mu_dirx_ = Event->track_dirx_->at(muon_candidate_idx_);
+    reco_mu_diry_ = Event->track_diry_->at(muon_candidate_idx_);
+    reco_mu_dirz_ = Event->track_dirz_->at(muon_candidate_idx_);
+    reco_mu_mcs_mom_ = Event->track_mcs_mom_mu_->at(muon_candidate_idx_);
+    reco_mu_range_mom_ = Event->track_range_mom_mu_->at(muon_candidate_idx_);
+  }
 };
 
 void CC1mu1pi::compute_true_observables(AnalysisEvent* Event) {
   // Evaluate the true kinematic variables of interest
 
-  // Check if there is a true final-state muon in this event
-  bool is_signal = (
-    sig_isNuMu_ && (Event->mc_nu_ccnc_ == CHARGED_CURRENT) &&
-    (sig_nPion_ == 1)
-  );
-
   // If there isn't one, we don't need to do anything else
-  if (!is_signal) return;
+  if (!sig_is_signal_) return;
 
   // Loop over the true final-state particles of the input event
   size_t num_fs_particles = Event->mc_nu_daughter_pdg_->size();
@@ -61,36 +118,57 @@ void CC1mu1pi::compute_true_observables(AnalysisEvent* Event) {
   for (size_t f = 0; f < num_fs_particles; ++f) {
 
     int pdg = abs(Event->mc_nu_daughter_pdg_->at(f));
+    float px = Event->mc_nu_daughter_px_->at(f);
+    float py = Event->mc_nu_daughter_py_->at(f);
+    float pz = Event->mc_nu_daughter_pz_->at(f);
+
     if (pdg == MUON) {
 
       found_muon = true;
-      float px = Event->mc_nu_daughter_px_->at(f);
-      float py = Event->mc_nu_daughter_py_->at(f);
-      float pz = Event->mc_nu_daughter_pz_->at(f);
+      //float px = Event->mc_nu_daughter_px_->at(f);
+      //float py = Event->mc_nu_daughter_py_->at(f);
+      //float pz = Event->mc_nu_daughter_pz_->at(f);
 
+      // TODO CHECK THIS
       // Replace the stored 3-momentum with the one for the current final-state
       // muon if the latter is larger
       TVector3 temp_p3mu(px, py, pz);
       if (temp_p3mu.Mag() > mc_p3mu_->Mag()) {
         *mc_p3mu_ = temp_p3mu;
+
+        true_mu_mom_  = mc_p3mu_->Mag();
+        true_mu_dirx_ = px/true_mu_mom_;
+        true_mu_diry_ = py/true_mu_mom_;
+        true_mu_dirz_ = pz/true_mu_mom_;
+
       }
 
     } // final-state muon
     if (pdg == PI_PLUS) {
 
       found_pion = true;
-      float px = Event->mc_nu_daughter_px_->at(f);
-      float py = Event->mc_nu_daughter_py_->at(f);
-      float pz = Event->mc_nu_daughter_pz_->at(f);
 
       // Replace the stored 3-momentum with the one for the current final-state
       // pion if the latter is larger
       TVector3 temp_p3pi(px, py, pz);
       if (temp_p3pi.Mag() > mc_p3pi_->Mag()) {
         *mc_p3pi_ = temp_p3pi;
+        true_pi_mom_  = mc_p3pi_->Mag();
+        true_pi_dirx_ = px/true_pi_mom_;
+        true_pi_diry_ = py/true_pi_mom_;
+        true_pi_dirz_ = pz/true_pi_mom_;
       }
 
     } // FS pion
+
+    if (pdg == PROTON) {
+      ++true_n_proton_;
+      double p = sqrt(px*px + py*py + pz*pz);
+
+      if (p > proton_thresh_) {
+        ++true_n_proton_above_thresh_;
+      }
+    }
   } // loop over final-state particles
 
   if (!found_muon) {
@@ -124,18 +202,59 @@ int  CC1mu1pi::categorize_event(AnalysisEvent* Event) {
   bool isNC = (Event->mc_nu_ccnc_ == NEUTRAL_CURRENT);
   if (isNC) return kNC;
 
-  if (Event->mc_nu_pdg_ == ELECTRON_NEUTRINO) {
+  //abs? TODO
+  if (abs_mc_nu_pdg == ELECTRON_NEUTRINO) {
     return kNuECC;
   }
-  if (!(Event->mc_nu_pdg_ == MUON_NEUTRINO)) {
+  if (abs_mc_nu_pdg != MUON_NEUTRINO) {
     return kOther;
   }
 
-  if (this->is_event_mc_signal()) {
-    // Categorize all numuCC events as "CC other" since we don't look at the
-    // hadronic content in this selection
-    // TODO: revisit this!
-    return kNuMuCCOther;
+  int interaction_type = Event->mc_nu_interaction_type_;
+
+  if (interaction_type == 0) {
+    if (sig_nPion_ == 0) {
+      return kNuMuCC0pi_CCQE;
+    }
+    else if (sig_nPion_ == 1) {
+      return kNuMuCC1pi_CCQE;
+    }
+    else {
+      return kNuMuCCNpi_CCQE;
+    }
+  }
+  else if (interaction_type == 10) {
+    if (sig_nPion_ == 0) {
+      return kNuMuCC0pi_CCMEC;
+    }
+    else if (sig_nPion_ == 1) {
+      return kNuMuCC1pi_CCMEC;
+    }
+    else {
+      return kNuMuCCNpi_CCMEC;
+    }
+  }
+  else if (interaction_type == 1) {
+    if (sig_nPion_ == 0) {
+      return kNuMuCC0pi_CCRES;
+    }
+    else if (sig_nPion_ == 1) {
+      return kNuMuCC1pi_CCRES;
+    }
+    else {
+      return kNuMuCCNpi_CCRES;
+    }
+  }
+  else {
+    if (sig_nPion_ == 0) {
+      return kNuMuCC0pi_Other;
+    }
+    else if (sig_nPion_ == 1) {
+      return kNuMuCC1pi_Other;
+    }
+    else {
+      return kNuMuCCNpi_Other;
+    }
   }
 
   // We shouldn't ever get here, but return "unknown" just in case
@@ -143,44 +262,74 @@ int  CC1mu1pi::categorize_event(AnalysisEvent* Event) {
 };
 
 void CC1mu1pi::reset() {
+
+  sig_nPion_ = 0;
+  sig_isNuMu_ = false;
+  sig_is_CC_ = false;
+  sig_is_signal_ = false;
+  sig_has_fs_muon_ = false;
+  sig_inFV_ = false;
+
   sel_pfp_starts_in_PCV_ = false;
   sel_reco_vertex_in_FV_ = false;
   sel_presel_topo_cut_passed_ = false;
   sel_has_muon_candidate_ = false;
   sel_nu_mu_cc_ = false;
+  sel_muon_contained_ = false;
+  sel_opening_angle_ = BOGUS;
+  sel_phase_space_opening_angle_ = false;
+  sel_phase_space_pion_mom_ = false;
+  sel_phase_space_muon_mom_ = false;
+  sel_cc1pi_topo_cut_passed_ = false;
+  sel_all_near_vertex_ = false;
+  sel_pion_dEdx_ = BOGUS;
+  sel_pion_dEdx_good_ = false;
+  sel_nu_mu_cc_1pi_ = false;
+  sel_min_2_tracks_ = false;
+  sel_num_non_protons_good_ = false;
+  sel_max_1_escape_ = false;
+  sel_n_escape_ = 0;
+  sel_pion_not_in_gap_ = false;
+  sel_muon_not_in_gap_ = false;
+
   muon_candidate_idx_ = BOGUS_INDEX;
   pion_candidate_idx_ = BOGUS_INDEX;
-  sel_muon_contained_ = false;
-  min_2_tracks_ = false;
-  num_non_protons_good_ = false;
-  max_1_escape_ = false;
-  pion_not_in_gap_ = false;
-  muon_not_in_gap_ = false;
-  sel_opening_angle_ = BOGUS;
-  sel_good_opening_angle_ = false;
-  sel_cc1pi_topo_cut_passed_ = false;
+
+  mc_p3mu_->SetXYZ(BOGUS, BOGUS, BOGUS);
+  mc_p3pi_->SetXYZ(BOGUS, BOGUS, BOGUS);
+
+  reco_pi_mcs_mom_ = BOGUS;
+  reco_pi_range_mom_ = BOGUS;
+  reco_pi_dirx_ = BOGUS;
+  reco_pi_diry_ = BOGUS;
+  reco_pi_dirz_ = BOGUS;
+
+  reco_mu_mcs_mom_ = BOGUS;
+  reco_mu_range_mom_ = BOGUS;
+  reco_mu_dirx_ = BOGUS;
+  reco_mu_diry_ = BOGUS;
+  reco_mu_dirz_ = BOGUS;
+  max_vertex_distance_ = -1.*BOGUS;
+
+  true_n_proton_ = 0;
+  true_n_proton_above_thresh_ = 0;
+
+  sel_good_bdt_scores_ = true;
+  sel_reselected_muon_ = false;
 }
 
 bool CC1mu1pi::selection(AnalysisEvent* Event) {
 
-
-
-  // "Proton containment volume" from https://arxiv.org/abs/2403.19574. We keep
-  // this definition so that this toy selection matches the CC inclusive
-  // portion of the selection used in Gardiner's CC0piNp analysis.
-  FiducialVolume PCV;
-  PCV.X_Min = 10.;
-  PCV.X_Max = 246.35;
-  PCV.Y_Min = -106.5;
-  PCV.Y_Max = 106.5;
-  PCV.Z_Min = 10.;
-  PCV.Z_Max = 1026.8;
+  //std::cout << "Doing selection" << std::endl;
 
 
   // Apply the containment cut to the starting positions of all
   // reconstructed tracks and showers. Pass this cut by default.
   // L218 -- doc41264
   sel_pfp_starts_in_PCV_ = true;
+  //Also check here that all are nearby
+  sel_all_near_vertex_ = true;
+  max_vertex_distance_ = -1.*BOGUS;
 
   // Loop over each PFParticle in the event
   for ( int p = 0; p < Event->num_pf_particles_; ++p ) {
@@ -203,7 +352,13 @@ bool CC1mu1pi::selection(AnalysisEvent* Event) {
     // volume. See https://stackoverflow.com/a/2488507 for an explanation of
     // the use of &= here. Don't worry, it's type-safe since both operands are
     // bool.
-    sel_pfp_starts_in_PCV_ &= point_inside_FV( PCV, x, y, z );
+    sel_pfp_starts_in_PCV_ &= point_inside_FV( PCV_, x, y, z );
+
+    //Look at all of the gen-2 particles and see if they're within a 
+    //good distance 
+    float vertex_distance = Event->track_start_distance_->at(p);
+    sel_all_near_vertex_ &= (Event->track_start_distance_->at(p) < 9.5);
+    if (vertex_distance > max_vertex_distance_) max_vertex_distance_ = vertex_distance;
   }
 
   // Require selected events to have a reco vertex within the reco fiducial
@@ -256,49 +411,58 @@ bool CC1mu1pi::selection(AnalysisEvent* Event) {
   std::vector<int> escaping_ids;
   //Reselect the muon at this point
   //See doc 33809 p.47 figure 34
-  if ( num_candidates == 1 ) {
-    //Just 1 candidate?
-    muon_candidate_idx_ = muon_candidate_indices.front();
-  }
-  else if ( num_candidates > 1 ) {
-    //If multiple -- look for any that escape
-    for (const auto & candidate_id : muon_candidate_indices) {
-      float endx = Event->track_endx_->at( candidate_id );
-      float endy = Event->track_endy_->at( candidate_id );
-      float endz = Event->track_endz_->at( candidate_id );
-      bool end_contained = point_inside_FV( PCV, endx, endy, endz );
-      //save muon bdt score to check contained
-      float bdt_score = Event->pfp_muon_bdt_responses_->at(candidate_id);
-      if (!end_contained) {
-        escaping_ids.push_back(candidate_id);
-      }
-      else if (bdt_score < BOGUS) {
+  for (int candidate_id = 0; candidate_id < Event->num_pf_particles_;
+        ++candidate_id) {
 
-        contained_ids_bdt_scores.push_back(
-          {candidate_id, bdt_score}
-        );
-      }
-    }
+    unsigned int generation = Event->pfp_generation_->at(candidate_id);
+    if (generation != 2) continue;
 
-    if (escaping_ids.size() == 1) {
-      //Just use the escaper
-      muon_candidate_idx_ = escaping_ids[0];
-      sel_muon_contained_ = false;
+    float endx = Event->track_endx_->at( candidate_id );
+    float endy = Event->track_endy_->at( candidate_id );
+    float endz = Event->track_endz_->at( candidate_id );
+    bool end_contained = point_inside_FV( MCV_, endx, endy, endz );
+    //save muon bdt score to check contained
+    float bdt_score = Event->pfp_muon_bdt_responses_->at(candidate_id);
+    if (!end_contained) {
+      escaping_ids.push_back(candidate_id);
     }
-    else if (escaping_ids.size() == 0) {
-      //All contained? Use highest muon bdt score
-      std::sort(contained_ids_bdt_scores.begin(), contained_ids_bdt_scores.end(),
-                [](auto & a, auto & b){return (a.second > b.second);});
-      muon_candidate_idx_ = contained_ids_bdt_scores[0].first;
-      sel_muon_contained_ = true;
+    else if (bdt_score < BOGUS) {
+      contained_ids_bdt_scores.push_back(
+        {candidate_id, bdt_score}
+      );
     }
   }
+
+  sel_n_escape_ = escaping_ids.size();
+  if (sel_n_escape_ == 1) {
+    //Just use the escaper
+    muon_candidate_idx_ = escaping_ids[0];
+    sel_muon_contained_ = false;
+  }
+  //If no good BDT vals skip event
+  else if (sel_n_escape_ == 0 && (contained_ids_bdt_scores.size() > 0)) {
+    //All contained? Use highest muon bdt score
+    std::sort(contained_ids_bdt_scores.begin(), contained_ids_bdt_scores.end(),
+              [](auto & a, auto & b){return (a.second > b.second);});
+    muon_candidate_idx_ = contained_ids_bdt_scores[0].first;
+    sel_muon_contained_ = true;
+  }
+  else if (contained_ids_bdt_scores.size() == 0) {
+    sel_good_bdt_scores_ = false;
+  }
+
+  sel_reselected_muon_ = (muon_candidate_idx_ != BOGUS_INDEX);
+
+  //More than 1? Will get cut out
+  sel_max_1_escape_ = (sel_n_escape_ <= 1);
 
   //will be used later
-  min_2_tracks_ = (Event->num_tracks_ >= 2);
+  sel_min_2_tracks_ = (Event->num_tracks_ >= 2);
 
-  size_t n_escape = 0;
+  //size_t n_escape = 0;
   std::vector<int> proton_candidates, non_proton_candidates;
+
+  //std::cout << "Doing pi sel" << std::endl;
 
   //Now do the Generic Pion Selection
   for (int p = 0; p < Event->num_pf_particles_; ++p) {
@@ -309,43 +473,38 @@ bool CC1mu1pi::selection(AnalysisEvent* Event) {
     unsigned int generation = Event->pfp_generation_->at( p );
     if (generation != 2) continue;
 
-    // Check whether the muon candidate is contained. Use the PCV as the
-    // containment volume.
-    float endx = Event->track_endx_->at( p );
-    float endy = Event->track_endy_->at( p );
-    float endz = Event->track_endz_->at( p );
-    bool end_contained = point_inside_FV( PCV, endx, endy, endz );
-    if (!end_contained) ++n_escape;
-
     float proton_bdt_score = Event->pfp_proton_bdt_responses_->at(p);
     //Turn into config/parameter TODO 
     if (proton_bdt_score > -.06) proton_candidates.push_back(p);
     else non_proton_candidates.push_back(p);
   }
 
-  max_1_escape_ = (n_escape <= 1);
-
-
   //FIGURE OUT WHAT TO DO HERE. WE NEED MAX 2 NON PROTONS
   //What if there's a muon candidate that has proton bdt > cut???
 
   //Total is num pfp? or num tracks? TODO ASK
   size_t num_non_protons = (non_proton_candidates.size());
+  //std::cout << "Got " << num_non_protons << " non protons and " <<
+  //             proton_candidates.size() << " protons" << std::endl;
   if (num_non_protons == 1) {
     pion_candidate_idx_ = non_proton_candidates[0];
-    pion_not_in_gap_ = (
+    sel_pion_not_in_gap_ = (
       (Event->pfp_hitsV_->at(pion_candidate_idx_) > 0) &&
       (Event->pfp_hitsU_->at(pion_candidate_idx_) > 0) &&
       (Event->pfp_hitsY_->at(pion_candidate_idx_) > 0)
     );
     //Set this good here. Technically it's called 2NonProtons in Andy's TN
     //but we already have one as the muon
-    num_non_protons_good_ = true;
+    sel_num_non_protons_good_ = true;
+
+    //Only u here?
+    sel_pion_dEdx_ = Event->track_trunk_dEdx_u_->at(pion_candidate_idx_);
+    sel_pion_dEdx_good_ = (sel_pion_dEdx_ > 1.0); //Make this a member TODO
   }
 
   //Check if the muon has hits on all three planes
   if (muon_candidate_idx_ != BOGUS_INDEX) {
-    muon_not_in_gap_ = (
+    sel_muon_not_in_gap_ = (
       (Event->pfp_hitsV_->at(muon_candidate_idx_) > 0) &&
       (Event->pfp_hitsU_->at(muon_candidate_idx_) > 0) &&
       (Event->pfp_hitsY_->at(muon_candidate_idx_) > 0)
@@ -365,21 +524,18 @@ bool CC1mu1pi::selection(AnalysisEvent* Event) {
     );
   }
 
-  
-
-  sel_good_opening_angle_ = ((sel_opening_angle_ > 2.65) && //TODO -- make this a member
+  sel_phase_space_opening_angle_ = ((sel_opening_angle_ < 2.65) && //TODO -- make this a member
                              (sel_opening_angle_ < BOGUS));
   sel_cc1pi_topo_cut_passed_ = (Event->topological_score_ > cc1pi_topo_cutval_); // >.67
 
-  //TODO -- ADD DEDX CUT AND START NEAR VERTEX CUT
 
-
-  //FILL THIS OUT TODO
   sel_nu_mu_cc_1pi_ = (
-    min_2_tracks_ && max_1_escape_ &&
-    num_non_protons_good_ &&
-    pion_not_in_gap_ && muon_not_in_gap_ &&
-    sel_good_opening_angle_ && sel_cc1pi_topo_cut_passed_
+    sel_nu_mu_cc_ &&
+    sel_min_2_tracks_ && sel_max_1_escape_ &&
+    sel_num_non_protons_good_ &&
+    //sel_pion_dEdx_good_ && sel_phase_space_opening_angle_ &&
+    sel_pion_not_in_gap_ && sel_muon_not_in_gap_ &&
+    sel_cc1pi_topo_cut_passed_
   );
   return sel_nu_mu_cc_1pi_;
 };
@@ -394,6 +550,21 @@ void CC1mu1pi::define_constants() {
   // x_min, x_max, y_min, y_max, z_min, z_max
   this->define_true_FV(10., 246.35, -106.5, 106.5, 10, 986.8);
   this->define_reco_FV(10., 246.35, -106.5, 106.5, 10, 986.8);
+
+  PCV_.X_Min = 10.;
+  PCV_.X_Max = 246.35;
+  PCV_.Y_Min = -106.5;
+  PCV_.Y_Max = 106.5;
+  PCV_.Z_Min = 10.;
+  PCV_.Z_Max = 1026.8;
+
+  MCV_.X_Min = 5.;
+  MCV_.X_Max = 251.35;
+  MCV_.Y_Min = -111.5;
+  MCV_.Y_Max = 111.5;
+  MCV_.Z_Min = 5.;
+  MCV_.Z_Max = 1031.8;
+
 }
 
 bool CC1mu1pi::define_signal(AnalysisEvent* Event) {
@@ -410,7 +581,9 @@ bool CC1mu1pi::define_signal(AnalysisEvent* Event) {
 
   // Require an incident muon neutrino
   sig_isNuMu_ = (Event->mc_nu_pdg_ == MUON_NEUTRINO);
+  sig_is_CC_ = (Event->mc_nu_ccnc_ == CHARGED_CURRENT);
   sig_nPion_ = 0;
+
   // Require a final-state muon
   // And 1 pion
   // ALSO ADD IN KINEMATICS
@@ -427,7 +600,9 @@ bool CC1mu1pi::define_signal(AnalysisEvent* Event) {
   }
 
   sig_is_signal_ = (
-    sig_inFV_ && sig_isNuMu_ && sig_has_fs_muon_ && (sig_nPion_ == 1)
+    sig_inFV_ && sig_isNuMu_ &&
+    sig_is_CC_ &&
+    sig_has_fs_muon_ && (sig_nPion_ == 1)
  );
 
   return sig_is_signal_;

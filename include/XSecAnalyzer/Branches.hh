@@ -118,6 +118,9 @@ void set_event_branch_addresses(TTree& etree, AnalysisEvent& ev)
   set_object_input_branch_address( etree, "trk_mcs_muon_mom_v",
     ev.track_mcs_mom_mu_ );
 
+  set_object_input_branch_address( etree, "trk_trunk_dEdx_u_v",
+    ev.track_trunk_dEdx_u_ );
+
   // Some ntuples exclude the old proton chi^2 PID score. Only include it
   // in the output if this branch is available.
   bool has_chipr = ( etree.GetBranch("trk_pid_chipr_v") != nullptr );

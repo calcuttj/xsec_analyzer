@@ -37,6 +37,7 @@ struct Arguments {
   std::vector<std::string> aux_files;
   std::vector<std::string> selection_names;
   int nevents = -1;
+  int nskip = 0;
 };
 
 void analyze( const Arguments & arguments )
@@ -124,12 +125,13 @@ void analyze( const Arguments & arguments )
   // files). When that's the case, calling TChain::GetEntries() can be very
   // slow. I get around this by using a while loop instead of a for loop.
   bool created_output_branches = false;
-  long events_entry = 0;
+  //Dangerous 
+  long events_entry = arguments.nskip;
 
   while ( true ) {
 
     //If not doing all events (-1), break after nevents
-    if ( (arguments.nevents != -1) && (events_entry > arguments.nevents) )
+    if ( (arguments.nevents != -1) && (events_entry >= arguments.nevents) )
       break;
 
     if ( events_entry % 1000 == 0 ) {
@@ -233,11 +235,20 @@ bool parse_args( int argc, char* argv[], Arguments & arg_results ) {
         return false;
       }
     }
+    if (!strcasecmp(argv[iArg],"--nskip")) {
+      arg_results.nskip = std::atoi(argv[++iArg]);
+      if (arg_results.nskip < 0) {
+        std::cerr << "Error: Must provide nskip >= 0" <<
+                     std::endl;
+        return false;
+      }
+    }
     if (!strcasecmp(argv[iArg],"-h")) {
       std::cout << argv[0] <<
           "-i <input_pelee_file> -o <output_file> " <<
           "-s <comma-separated selection names list> " <<
           "-n <nevents: default -1 for all> " <<
+          "--nskip: <starting event: default 0> " <<
           "[--aux <auxiliary file>] " <<
           std::endl;
       return false;

@@ -91,6 +91,7 @@ public:
   MyPointer< std::vector<float> > track_dirz_;
   MyPointer< std::vector<float> > track_theta_;
   MyPointer< std::vector<float> > track_phi_;
+  MyPointer< std::vector<float> > track_trunk_dEdx_u_;
 
   // Proton *kinetic* energy using range-based momentum reconstruction
   MyPointer< std::vector<float> > track_kinetic_energy_p_;
