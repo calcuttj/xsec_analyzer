@@ -87,10 +87,15 @@ class CC1mu1pi : public SelectionBase {
     float reco_pi_diry_ = BOGUS;
     float reco_pi_dirz_ = BOGUS;
 
-    float reco_pi_theta_ = BOGUS;
+    float reco_pi_costheta_ = BOGUS;
     float reco_pi_phi_ = BOGUS;
-    float reco_mu_theta_ = BOGUS;
+    float reco_mu_costheta_ = BOGUS;
     float reco_mu_phi_ = BOGUS;
+
+    float true_pi_costheta_ = BOGUS;
+    float true_pi_phi_ = BOGUS;
+    float true_mu_costheta_ = BOGUS;
+    float true_mu_phi_ = BOGUS;
 
     float true_pi_mom_ = BOGUS;
     float true_pi_dirx_ = BOGUS;

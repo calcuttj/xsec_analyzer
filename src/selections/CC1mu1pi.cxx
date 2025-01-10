@@ -56,8 +56,15 @@ void CC1mu1pi::define_output_branches() {
   this->set_branch( &reco_pi_diry_ , "reco_pi_diry");
   this->set_branch( &reco_pi_dirz_ , "reco_pi_dirz");
 
+  this->set_branch( &reco_pi_costheta_ , "reco_pi_costheta");
+  this->set_branch( &reco_mu_costheta_ , "reco_mu_costheta");
+  this->set_branch( &reco_pi_phi_ , "reco_pi_phi");
+  this->set_branch( &reco_mu_phi_ , "reco_mu_phi");
 
-
+  this->set_branch( &true_pi_costheta_ , "true_pi_costheta");
+  this->set_branch( &true_mu_costheta_ , "true_mu_costheta");
+  this->set_branch( &true_pi_phi_ , "true_pi_phi");
+  this->set_branch( &true_mu_phi_ , "true_mu_phi");
 
   this->set_branch( &reco_mu_dirx_ , "reco_mu_dirx");
   this->set_branch( &reco_mu_diry_ , "reco_mu_diry");
@@ -86,6 +93,12 @@ void CC1mu1pi::compute_reco_observables(AnalysisEvent* Event) {
     reco_pi_diry_ = Event->track_diry_->at(pion_candidate_idx_);
     reco_pi_dirz_ = Event->track_dirz_->at(pion_candidate_idx_);
 
+    reco_pi_costheta_ = reco_pi_dirz_;
+    reco_pi_phi_ = std::acos(
+        reco_pi_dirx_/
+        sqrt(reco_pi_dirx_*reco_pi_dirx_ + reco_pi_diry_*reco_pi_diry_)
+    );
+
     reco_pi_mcs_mom_ = Event->track_mcs_mom_mu_->at(pion_candidate_idx_);
     reco_pi_range_mom_ = Event->track_range_mom_mu_->at(pion_candidate_idx_);
   }
@@ -94,6 +107,13 @@ void CC1mu1pi::compute_reco_observables(AnalysisEvent* Event) {
     reco_mu_dirx_ = Event->track_dirx_->at(muon_candidate_idx_);
     reco_mu_diry_ = Event->track_diry_->at(muon_candidate_idx_);
     reco_mu_dirz_ = Event->track_dirz_->at(muon_candidate_idx_);
+
+    reco_mu_costheta_ = reco_mu_dirz_;
+    reco_mu_phi_ = std::acos(
+        reco_mu_dirx_/
+        sqrt(reco_mu_dirx_*reco_mu_dirx_ + reco_mu_diry_*reco_mu_diry_)
+    );
+
     reco_mu_mcs_mom_ = Event->track_mcs_mom_mu_->at(muon_candidate_idx_);
     reco_mu_range_mom_ = Event->track_range_mom_mu_->at(muon_candidate_idx_);
   }
@@ -141,6 +161,13 @@ void CC1mu1pi::compute_true_observables(AnalysisEvent* Event) {
         true_mu_diry_ = py/true_mu_mom_;
         true_mu_dirz_ = pz/true_mu_mom_;
 
+        true_mu_costheta_ = true_mu_dirz_;
+        true_mu_phi_ = std::acos(
+            true_mu_dirx_/
+            sqrt(true_mu_dirx_*true_mu_dirx_ + true_mu_diry_*true_mu_diry_)
+        );
+
+
       }
 
     } // final-state muon
@@ -157,6 +184,13 @@ void CC1mu1pi::compute_true_observables(AnalysisEvent* Event) {
         true_pi_dirx_ = px/true_pi_mom_;
         true_pi_diry_ = py/true_pi_mom_;
         true_pi_dirz_ = pz/true_pi_mom_;
+
+        true_pi_costheta_ = true_pi_dirz_;
+        true_pi_phi_ = std::acos(
+            true_pi_dirx_/
+            sqrt(true_pi_dirx_*true_pi_dirx_ + true_pi_diry_*true_pi_diry_)
+        );
+
       }
 
     } // FS pion
@@ -303,6 +337,16 @@ void CC1mu1pi::reset() {
   reco_pi_dirx_ = BOGUS;
   reco_pi_diry_ = BOGUS;
   reco_pi_dirz_ = BOGUS;
+
+  reco_pi_costheta_ = BOGUS;
+  reco_mu_costheta_ = BOGUS;
+  reco_pi_phi_ = BOGUS;
+  reco_mu_phi_ = BOGUS;
+
+  true_pi_costheta_ = BOGUS;
+  true_mu_costheta_ = BOGUS;
+  true_pi_phi_ = BOGUS;
+  true_mu_phi_ = BOGUS;
 
   reco_mu_mcs_mom_ = BOGUS;
   reco_mu_range_mom_ = BOGUS;
