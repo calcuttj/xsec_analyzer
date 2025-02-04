@@ -224,6 +224,31 @@ void set_additional_branch_addresses(TTree& etree, AnalysisEvent& ev) {
 
 }
 
+void set_nugraph2_branch_addresses(TTree& etree, AnalysisEvent& ev) {
+
+  if ( etree.GetBranch("pfng2mipfrac") != nullptr ) {
+    set_object_input_branch_address(
+        etree, "pfng2mipfrac", ev.ng2_pfp_mip_frac_);
+  }
+  if ( etree.GetBranch("pfng2hipfrac") != nullptr ) {
+    set_object_input_branch_address(
+        etree, "pfng2hipfrac", ev.ng2_pfp_hip_frac_);
+  }
+  if ( etree.GetBranch("pfng2shrfrac") != nullptr ) {
+    set_object_input_branch_address(
+        etree, "pfng2shrfrac", ev.ng2_pfp_shr_frac_);
+  }
+  if ( etree.GetBranch("pfng2mclfrac") != nullptr ) {
+    set_object_input_branch_address(
+        etree, "pfng2mclfrac", ev.ng2_pfp_mcl_frac_);
+  }
+  if ( etree.GetBranch("pfng2dfsfrac") != nullptr ) {
+    set_object_input_branch_address(
+        etree, "pfng2dfsfrac", ev.ng2_pfp_dfs_frac_);
+  }
+
+}
+
 // Helper function to set branch addresses for the output TTree
 void set_event_output_branch_addresses(TTree& out_tree, AnalysisEvent& ev,
   bool create = false)

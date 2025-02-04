@@ -3,12 +3,10 @@
 // XSecAnalyzer includes
 #include "XSecAnalyzer/Selections/SelectionBase.hh"
 
-//#include ""
-
-class CC1mu1pi : public SelectionBase {
+class CC1mu1piNG2 : public SelectionBase {
  public:
-  CC1mu1pi();
-  ~CC1mu1pi(){};
+  CC1mu1piNG2();
+  ~CC1mu1piNG2(){};
 
   int categorize_event(AnalysisEvent* Event);
   bool selection(AnalysisEvent* Event);

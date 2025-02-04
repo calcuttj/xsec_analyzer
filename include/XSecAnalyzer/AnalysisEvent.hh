@@ -163,6 +163,16 @@ public:
   MyPointer< std::vector<float> > pfp_muon_bdt_responses_;
   MyPointer< std::vector<float> > pfp_pion_bdt_responses_;
 
+  // Nugraph2 info
+  // Per Giuseppe: semantic labels per slice ("slcng2*"), per PFP ("pfng2*"), and summed across PFPs in the slice ("clung2*")
+  // TODO -- see if slc, and clu are needed?
+  MyPointer< std::vector<double> > ng2_pfp_dfs_frac_;
+  MyPointer< std::vector<double> > ng2_pfp_mip_frac_;
+  MyPointer< std::vector<double> > ng2_pfp_hip_frac_;
+  MyPointer< std::vector<double> > ng2_pfp_shr_frac_;
+  MyPointer< std::vector<double> > ng2_pfp_mcl_frac_;
+  
+
   //================================================================================================================
   // ** Reconstructed observables **
 };

@@ -38,6 +38,7 @@ struct Arguments {
   std::vector<std::string> selection_names;
   int nevents = -1;
   int nskip = 0;
+  bool nugraph2 = false;
 };
 
 void analyze( const Arguments & arguments )
@@ -149,6 +150,10 @@ void analyze( const Arguments & arguments )
     // Set branch addresses for auxiliary members
     set_additional_branch_addresses( events_ch, cur_event );
 
+    if (arguments.nugraph2) {
+      set_nugraph2_branch_addresses(events_ch, cur_event);
+    }
+
     // TChain::LoadTree() returns the entry number that should be used with
     // the current TTree object, which (together with the TBranch objects
     // that it owns) doesn't know about the other TTrees in the TChain.
@@ -227,6 +232,9 @@ bool parse_args( int argc, char* argv[], Arguments & arg_results ) {
     if (!strcasecmp(argv[iArg],"--aux")) {
       arg_results.aux_files.push_back(argv[++iArg]);
     }
+    if (!strcasecmp(argv[iArg],"--nugraph2")) {
+      arg_results.nugraph2 = true;
+    }
     if (!strcasecmp(argv[iArg],"-n")) {
       arg_results.nevents = std::atoi(argv[++iArg]);
       if (arg_results.nevents < -1) {
@@ -250,6 +258,7 @@ bool parse_args( int argc, char* argv[], Arguments & arg_results ) {
           "-n <nevents: default -1 for all> " <<
           "--nskip: <starting event: default 0> " <<
           "[--aux <auxiliary file>] " <<
+          "[--nugraph2]" <<
           std::endl;
       return false;
     }
